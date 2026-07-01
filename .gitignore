@@ -6,19 +6,19 @@ __pycache__/
 venv/
 env/
 
-# 数据库 / 本地数据(如需保留示例数据可删掉这两行)
+# Database / local data (delete these lines if you want to commit a sample DB)
 *.db
 *.sqlite
 *.sqlite3
 
-# 环境与密钥
+# Environment & secrets
 .env
 *.key
 
 # Streamlit
 .streamlit/secrets.toml
 
-# 系统 / 编辑器
+# OS / editors
 .DS_Store
 Thumbs.db
 .idea/

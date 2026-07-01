@@ -1,8 +1,9 @@
 """
-db.py — SQLite 数据层
-======================
-按 DATA_MODEL.md 建表,并提供:初始化、导入 CSV(DataFrame)、写回决策、读取。
-只用标准库 sqlite3 + pandas。默认库文件 auditscope.db(已在 .gitignore 中忽略)。
+db.py - SQLite data layer
+=========================
+Creates the tables from DATA_MODEL.md and provides: initialisation, CSV
+(DataFrame) import, writing decisions back, and reads. Uses only the standard
+library sqlite3 plus pandas. Default database file: auditscope.db (git-ignored).
 """
 from __future__ import annotations
 
@@ -84,7 +85,7 @@ def init_db(db_path: str = DEFAULT_DB) -> None:
     con.close()
 
 
-# -- 导入 ---------------------------------------------------------------------
+# -- import -------------------------------------------------------------------
 def _import_df(con, df: pd.DataFrame, table: str, cols: Iterable[str]) -> int:
     keep = [c for c in cols if c in df.columns]
     df[keep].to_sql(table, con, if_exists="append", index=False)
@@ -119,7 +120,7 @@ def load_transactions(con, df) -> int:
 
 def save_materiality_version(con, engagement_id: int, m: dict,
                              make_active: bool = True) -> int:
-    """写入一条重要性版本;make_active 时把其它版本置为非生效。"""
+    """Insert one materiality version; if make_active, deactivate the others."""
     if make_active:
         con.execute("UPDATE materiality_versions SET is_active=0 WHERE engagement_id=?",
                     (engagement_id,))

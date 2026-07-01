@@ -20,7 +20,7 @@ def test_full_scope_when_contribution_over_15pct():
 
 
 def test_high_risk_gets_specific_even_if_small():
-    r = _by(score_components(COMPS), "SmallHi")   # 4% 但 High
+    r = _by(score_components(COMPS), "SmallHi")   # ~4% but High risk
     assert r["scope_decision"] == "Specific Scope"
 
 

@@ -1,11 +1,11 @@
 """
-engines/materiality.py — 重要性计算(Module 2)
-===============================================
-公式(见 DESIGN_DOC 第 4 节):
-    PM  = benchmark_amount × percentage × adjustment_factor
-    TE  = PM × te_percentage
-    SAD = PM × sad_percentage
-纯函数,不碰 DB/UI,方便单测。
+engines/materiality.py - Materiality calculation (Module 2)
+===========================================================
+Formulas (see DESIGN_DOC section 4):
+    PM  = benchmark_amount x percentage x adjustment_factor
+    TE  = PM x te_percentage
+    SAD = PM x sad_percentage
+Pure function - no DB/UI dependencies, so it is easy to unit-test.
 """
 from __future__ import annotations
 
@@ -16,13 +16,13 @@ VALID_BENCHMARKS = {"PBT", "Revenue", "Assets", "Equity"}
 
 def compute_materiality(inputs: dict[str, Any]) -> dict[str, Any]:
     """
-    inputs 需含:benchmark_type, benchmark_amount, percentage,
-                adjustment_factor, te_percentage, sad_percentage
-    返回:含 pm/te/sad 及回显输入的 dict。
+    inputs must contain: benchmark_type, benchmark_amount, percentage,
+                         adjustment_factor, te_percentage, sad_percentage
+    Returns a dict with pm/te/sad plus the echoed inputs.
     """
     btype = str(inputs.get("benchmark_type", "")).strip()
     if btype not in VALID_BENCHMARKS:
-        raise ValueError(f"benchmark_type 非法: {btype!r},应为 {sorted(VALID_BENCHMARKS)}")
+        raise ValueError(f"Invalid benchmark_type: {btype!r}, expected one of {sorted(VALID_BENCHMARKS)}")
 
     amount = float(inputs["benchmark_amount"])
     pct = float(inputs["percentage"])
@@ -34,11 +34,11 @@ def compute_materiality(inputs: dict[str, Any]) -> dict[str, Any]:
                     ("adjustment_factor", adj), ("te_percentage", te_pct),
                     ("sad_percentage", sad_pct)]:
         if v < 0:
-            raise ValueError(f"{name} 不能为负: {v}")
+            raise ValueError(f"{name} cannot be negative: {v}")
     if not (0 < te_pct <= 1):
-        raise ValueError(f"te_percentage 应在 (0,1]: {te_pct}")
+        raise ValueError(f"te_percentage must be in (0, 1]: {te_pct}")
     if not (0 <= sad_pct <= 1):
-        raise ValueError(f"sad_percentage 应在 [0,1]: {sad_pct}")
+        raise ValueError(f"sad_percentage must be in [0, 1]: {sad_pct}")
 
     pm = amount * pct * adj
     te = pm * te_pct

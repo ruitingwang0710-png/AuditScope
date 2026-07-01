@@ -1,4 +1,4 @@
-# AuditScope V1 依赖(核心引擎仅需 pandas;SQLite 用标准库 sqlite3)
+# AuditScope V1 dependencies (core engines need only pandas; SQLite via stdlib sqlite3)
 pandas>=2.0
 streamlit>=1.30
 pytest>=7.0

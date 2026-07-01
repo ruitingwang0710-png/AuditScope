@@ -1,23 +1,25 @@
 """
-engines/account_scoping.py — 科目范围判断(Module 4)
-=====================================================
-对每个 in-scope 主体的 TB 逐科目判定是否测试、测试类型与理由。
-决策由 重要性(TE/SAD) × 风险评级 × 科目类型 共同决定。
+engines/account_scoping.py - Account scoping (Module 4)
+=======================================================
+For each in-scope entity's trial balance, decides per account whether testing is
+required, the testing type and the rationale. Decisions are driven by
+materiality (TE/SAD) x risk rating x account type.
 """
 from __future__ import annotations
 
 from typing import Any
 
-# 交易性科目才适合叠加 NSS(非统计抽样);资产负债存量类偏 target/specific
+# Only transactional accounts are suitable for NSS (non-statistical sampling);
+# balance-sheet stock accounts lean towards target / specific testing.
 TRANSACTIONAL_TYPES = {"Revenue", "Expense", "Asset", "Liability"}
 
 
 def score_accounts(accounts: list[dict[str, Any]], te: float, sad: float
                    ) -> list[dict[str, Any]]:
     """
-    accounts: 每个 dict 含 account_name, account_type, balance, movement, risk_rating。
-    te / sad: 当前生效重要性阈值。
-    返回:加 testing_required / testing_type / testing_reason。
+    accounts: each dict has account_name, account_type, balance, movement, risk_rating.
+    te / sad: currently active materiality thresholds.
+    Returns each dict extended with testing_required / testing_type / testing_reason.
     """
     out = []
     for a in accounts:
@@ -30,24 +32,28 @@ def score_accounts(accounts: list[dict[str, Any]], te: float, sad: float
 
         if balance <= sad and risk != "high":
             required, ttype = 0, "None"
-            reason = f"余额 {balance:,.0f} ≤ SAD {sad:,.0f} 且风险不高,无需详细测试"
+            reason = (f"Balance {balance:,.0f} <= SAD {sad:,.0f} and risk not high; "
+                      f"no detailed testing required")
         elif risk == "high":
             required = 1
             if exceeds_te:
                 ttype = "Target + NSS" if transactional else "Target"
-                reason = f"高风险且超过 TE {te:,.0f},需重点测试" + (" + 抽样" if transactional else "")
+                reason = (f"High risk and exceeds TE {te:,.0f}; focused testing"
+                          + (" + sampling" if transactional else ""))
             else:
                 ttype = "Specific"
-                reason = f"高风险(余额 {balance:,.0f} 未超 TE),做针对性专项测试"
+                reason = (f"High risk (balance {balance:,.0f} below TE); "
+                          f"perform specific targeted procedures")
         elif exceeds_te:
             required = 1
             ttype = "Target + NSS" if transactional else "Target"
-            reason = (f"余额/变动超过 TE {te:,.0f}"
-                      + (",交易性科目 → 定向 + 非统计抽样" if transactional else ",→ 定向测试"))
+            reason = (f"Balance/movement exceeds TE {te:,.0f}"
+                      + ("; transactional account -> target + non-statistical sampling"
+                         if transactional else "; -> target testing"))
         else:
             required = 1
             ttype = "NSS"
-            reason = f"介于 SAD 与 TE 之间,做非统计抽样覆盖"
+            reason = "Between SAD and TE; cover via non-statistical sampling"
 
         row = dict(a)
         row["testing_required"] = required
