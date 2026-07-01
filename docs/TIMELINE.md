@@ -14,13 +14,14 @@
 - [x] GitHub repo 结构
 - [x] README skeleton(含免责声明)
 
-## Week 2 — Materiality + Scoping
+## Week 2 — Materiality + Scoping ✅
 交付物:
-- [ ] Materiality calculator(PM/TE/SAD + 多版本)
-- [ ] Component scoping engine
-- [ ] Account scoping engine
-- [ ] Streamlit 前 3 页(上传 / 重要性 / 范围)
-- [ ] SQLite schema 建表脚本
+- [x] Materiality calculator(PM/TE/SAD + 多版本)— `engines/materiality.py`
+- [x] Component scoping engine — `engines/component_scoping.py`
+- [x] Account scoping engine — `engines/account_scoping.py`
+- [x] Streamlit 前 3 页(上传 / 重要性 / 范围)— `app.py`
+- [x] SQLite schema 建表脚本 — `db.py`
+- [x] 15 个引擎单元测试(`tests/`),端到端跑通
 
 ## Week 3 — Sampling + Unique ID
 交付物:

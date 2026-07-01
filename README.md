@@ -3,7 +3,7 @@
 **Group Audit Sampling, Evidence Reuse & Red-Flag Analytics System**
 集团审计计划、抽样、证据复用与异常预警平台
 
-> Week 1 交付:本仓库目前是 **Design Doc 包**(设计文档 + 数据模型 + 功能清单 + 时间线 + CSV 模板)。V1 MVP 代码将按 [`docs/TIMELINE.md`](docs/TIMELINE.md) 迭代实现。
+> **进度:** Week 1 Design Doc 包已完成;**Week 2 已落地**——SQLite 数据层 + 重要性引擎 + component/account 范围引擎 + Streamlit 前 3 页(上传 / 重要性 / 范围)。后续按 [`docs/TIMELINE.md`](docs/TIMELINE.md) 迭代。
 
 ---
 
@@ -45,13 +45,21 @@
 ```
 AuditScope/
 ├── README.md
+├── requirements.txt
+├── app.py                    # Streamlit 前端(上传/重要性/范围)
+├── db.py                     # SQLite 数据层(建表/导入/读写)
+├── engines/                  # 计算引擎(纯函数,可单测)
+│   ├── materiality.py        #   PM / TE / SAD
+│   ├── component_scoping.py  #   主体范围
+│   └── account_scoping.py    #   科目范围
+├── tests/                    # 15 个引擎单元测试
 ├── docs/
 │   ├── DESIGN_DOC.md
 │   ├── DATA_MODEL.md
 │   ├── FEATURE_LIST.md
 │   └── TIMELINE.md
 └── data/
-    └── templates/
+    └── templates/            # 5 个输入 CSV 模板(含模拟示例)
         ├── engagements.csv
         ├── materiality_inputs.csv
         ├── components.csv
