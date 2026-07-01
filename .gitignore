@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# 数据库 / 本地数据(如需保留示例数据可删掉这两行)
+*.db
+*.sqlite
+*.sqlite3
+
+# 环境与密钥
+.env
+*.key
+
+# Streamlit
+.streamlit/secrets.toml
+
+# 系统 / 编辑器
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+.pytest_cache/
+.ipynb_checkpoints/

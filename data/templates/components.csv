@@ -1,0 +1,6 @@
+entity_id,engagement_id,entity_name,revenue,pbt,assets,liabilities,risk_rating,prior_year_adjustment
+101,1,ABC Tech Pty (AU),42000000,3100000,38000000,15000000,Medium,120000
+102,1,ABC Cloud Services (US),18000000,900000,12000000,6000000,High,0
+103,1,ABC Logistics (SG),9000000,350000,7000000,4000000,Medium,0
+104,1,ABC Ventures (HK),3000000,120000,2500000,1500000,High,45000
+105,1,ABC Support Co (AU),1500000,60000,900000,400000,Low,0

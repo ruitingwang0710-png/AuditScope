@@ -1,0 +1,14 @@
+account_id,entity_id,account_code,account_name,account_type,balance,movement,risk_rating
+1,101,REV4000,Revenue,Revenue,42000000,42000000,High
+2,101,AR1200,Accounts Receivable,Asset,8500000,3200000,Medium
+3,101,CASH1000,Cash and Bank,Asset,5200000,1800000,Medium
+4,101,EXP6000,Operating Expenses,Expense,9000000,9000000,Low
+5,101,TAX2300,Income Tax Payable,Liability,90000,90000,High
+6,102,REV4000,Revenue,Revenue,18000000,18000000,High
+7,102,AR1200,Accounts Receivable,Asset,4100000,1500000,High
+8,102,EXP6000,Operating Expenses,Expense,6300000,6300000,Medium
+9,103,REV4000,Revenue,Revenue,9000000,9000000,Medium
+10,103,AR1200,Accounts Receivable,Asset,1800000,700000,Medium
+11,104,REV4000,Revenue,Revenue,3000000,3000000,High
+12,104,EXP6000,Operating Expenses,Expense,1200000,1200000,Medium
+13,105,EXP6000,Operating Expenses,Expense,900000,900000,Low
