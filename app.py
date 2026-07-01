@@ -14,7 +14,8 @@ import pandas as pd
 import streamlit as st
 
 import db
-from engines import compute_materiality, score_components, score_accounts
+from engines import (compute_materiality, score_components, score_accounts,
+                     add_hashes, select_samples)
 
 HERE = os.path.dirname(__file__)
 DB_PATH = os.path.join(HERE, "auditscope.db")
@@ -36,7 +37,9 @@ def first_engagement_id(c) -> int | None:
 # ============================================================ Sidebar
 st.sidebar.title("🧭 AuditScope")
 st.sidebar.caption("Group Audit Sampling & Analytics - V1")
-page = st.sidebar.radio("Navigation", ["1 - Upload Data", "2 - Materiality", "3 - Scoping"])
+page = st.sidebar.radio("Navigation",
+                        ["1 - Upload Data", "2 - Materiality", "3 - Scoping",
+                         "4 - Sampling"])
 st.sidebar.divider()
 st.sidebar.caption("Educational prototype - simulated data - no client-confidential "
                    "information or proprietary firm methodology")
@@ -55,6 +58,8 @@ if page == "1 - Upload Data":
     with c2:
         f_acc = st.file_uploader("accounts.csv", type="csv", key="acc")
         f_mat = st.file_uploader("materiality_inputs.csv (optional)", type="csv", key="mat")
+    f_txn = st.file_uploader("transactions.csv (optional, needed for sampling)",
+                             type="csv", key="txn")
 
     use_tpl = st.checkbox("Use the built-in sample template (ABC Holdings FY2026)", value=False)
 
@@ -68,6 +73,7 @@ if page == "1 - Upload Data":
         comp = rd(f_comp, "components.csv")
         acc = rd(f_acc, "accounts.csv")
         mat = rd(f_mat, "materiality_inputs.csv")
+        txn = rd(f_txn, "transactions.csv")
 
         if eng is None or comp is None or acc is None:
             st.error("engagements / components / accounts are required "
@@ -81,6 +87,7 @@ if page == "1 - Upload Data":
             n_e = db.load_engagements(c, eng)
             n_c = db.load_components(c, comp)
             n_a = db.load_accounts(c, acc)
+            n_t = db.load_transactions(c, txn) if txn is not None else 0
             c.commit()
             eid = first_engagement_id(c)
             n_m = 0
@@ -91,7 +98,7 @@ if page == "1 - Upload Data":
                     n_m += 1
             c.close()
             st.success(f"Imported: engagements {n_e} - components {n_c} - "
-                       f"accounts {n_a} - materiality versions {n_m}")
+                       f"accounts {n_a} - transactions {n_t} - materiality versions {n_m}")
             st.info("Next, open '2 - Materiality' to confirm PM/TE/SAD, then '3 - Scoping'.")
 
     st.divider()
@@ -202,5 +209,69 @@ elif page == "3 - Scoping":
         st.dataframe(acc[["entity_id", "account_name", "account_type", "balance",
                           "risk_rating", "testing_required", "testing_type",
                           "testing_reason"]],
+                     use_container_width=True, hide_index=True)
+    c.close()
+
+
+# ============================================================ Page 4: Sampling
+elif page == "4 - Sampling":
+    st.title("4 - Sampling (Target + NSS)")
+    c = con()
+    eid = first_engagement_id(c)
+    if eid is None:
+        st.warning("Please import an engagement on '1 - Upload Data' first.")
+        st.stop()
+    act = db.active_materiality(c, eid)
+    if not act:
+        st.warning("Please set an active materiality version on '2 - Materiality' first.")
+        st.stop()
+    txns = db.read_table(c, "transactions")
+    if txns.empty:
+        st.warning("No transactions loaded. Upload transactions.csv on page 1 "
+                   "(or re-import using the sample template).")
+        st.stop()
+    accts = db.read_table(c, "accounts")
+    if accts["testing_required"].isna().all():
+        st.warning("Run '3 - Scoping' first so we know which accounts to sample.")
+        st.stop()
+
+    te = act["te"]
+    nss_n = st.number_input("NSS sample size per account", value=5, min_value=1, step=1)
+    st.caption(f"Target rule: amount >= TE {te:,.0f}, round amounts, or month/year-end. "
+               f"NSS: {nss_n} random items from the remainder.")
+
+    if st.button("Run sampling", type="primary"):
+        # 1) hash the whole population and write back
+        hashed = add_hashes(txns.to_dict("records"))
+        db.set_transaction_hashes(c, [(t["transaction_id"], t["transaction_hash"])
+                                      for t in hashed])
+        # 2) sample each testable account's population
+        testable = accts[accts["testing_required"] == 1][["entity_id", "account_code"]]
+        all_samples = []
+        for _, a in testable.iterrows():
+            pop = [t for t in hashed
+                   if t["entity_id"] == a["entity_id"]
+                   and str(t["account_code"]) == str(a["account_code"])]
+            if not pop:
+                continue
+            for s in select_samples(pop, te, config={"nss_sample_size": int(nss_n)}):
+                s["entity_id"] = int(a["entity_id"])
+                s["account_code"] = a["account_code"]
+                all_samples.append(s)
+        n = db.save_samples(c, eid, all_samples)
+        st.success(f"Generated {n} samples across {len(testable)} testable accounts.")
+
+    samples = db.read_table(c, "samples")
+    if len(samples):
+        t_cnt = (samples["sample_type"] == "Target").sum()
+        n_cnt = (samples["sample_type"] == "NSS").sum()
+        uniq = samples["transaction_hash"].nunique()
+        m1, m2, m3 = st.columns(3)
+        m1.metric("Target samples", int(t_cnt))
+        m2.metric("NSS samples", int(n_cnt))
+        m3.metric("Unique transactions", int(uniq))
+        st.dataframe(samples[["entity_id", "account_code", "transaction_hash",
+                              "sample_type", "selection_reason", "testing_status",
+                              "reuse_status"]],
                      use_container_width=True, hide_index=True)
     c.close()

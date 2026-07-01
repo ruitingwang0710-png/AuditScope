@@ -163,5 +163,28 @@ def update_account_scope(con, account_id: int, required, ttype, reason):
     con.commit()
 
 
+def set_transaction_hashes(con, id_hash_pairs) -> None:
+    """Write back transaction_hash for a list of (transaction_id, hash)."""
+    con.executemany("UPDATE transactions SET transaction_hash=? WHERE transaction_id=?",
+                    [(h, tid) for tid, h in id_hash_pairs])
+    con.commit()
+
+
+def save_samples(con, engagement_id: int, rows: list[dict]) -> int:
+    """Replace all samples for an engagement with the supplied rows."""
+    con.execute("DELETE FROM samples WHERE engagement_id=?", (engagement_id,))
+    con.executemany(
+        """INSERT INTO samples
+           (engagement_id, entity_id, account_code, transaction_hash, sample_type,
+            selection_reason, selected_by, selected_at, testing_status, reuse_status)
+           VALUES (?,?,?,?,?,?,?,datetime('now'),?,?)""",
+        [(engagement_id, r.get("entity_id"), r.get("account_code"),
+          r["transaction_hash"], r["sample_type"], r["selection_reason"],
+          r.get("selected_by", "system"), r["testing_status"], r["reuse_status"])
+         for r in rows])
+    con.commit()
+    return len(rows)
+
+
 def read_table(con, table: str) -> pd.DataFrame:
     return pd.read_sql(f"SELECT * FROM {table}", con)

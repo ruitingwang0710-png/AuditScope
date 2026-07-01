@@ -13,8 +13,8 @@ Goal: get the core logic working, put it on GitHub, put it on the CV.
 | 2 | Compute PM / TE / SAD (versioned) | M2 | done |
 | 3 | Component scope decision (with rationale) | M3 | done |
 | 4 | Account scope decision (with rationale) | M4 | done |
-| 5 | Generate target samples + NSS samples | M5 | planned (Week 3) |
-| 6 | Unique transaction ID (exact-match hash) | M6 | planned (Week 3) |
+| 5 | Generate target samples + NSS samples | M5 | done |
+| 6 | Unique transaction ID (exact-match hash) | M6 | done |
 | 7 | Record tested / not tested | M7 | planned (Week 4) |
 | 8 | Evidence reuse: reusable / partial / not (assertion coverage) | M7 | planned (Week 4) |
 | 9 | Lite dashboard (key metrics) | M9 | planned |

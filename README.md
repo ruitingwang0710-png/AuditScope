@@ -2,9 +2,10 @@
 
 **Group Audit Sampling, Evidence Reuse & Red-Flag Analytics System**
 
-> **Status:** Week 1 design-doc package complete; **Week 2 delivered** - SQLite data
-> layer + materiality engine + component/account scoping engines + the first three
-> Streamlit pages (Upload / Materiality / Scoping). Further iterations follow
+> **Status:** Week 1 design-doc package complete; **Weeks 2-3 delivered** - SQLite
+> data layer, materiality engine, component/account scoping, a unique
+> transaction-ID (hash) engine, a Target + NSS sampling engine, and four Streamlit
+> pages (Upload / Materiality / Scoping / Sampling). Further iterations follow
 > [`docs/TIMELINE.md`](docs/TIMELINE.md).
 
 ---
@@ -63,8 +64,10 @@ AuditScope/
 ├── engines/                  # Calculation engines (pure functions, unit-testable)
 │   ├── materiality.py        #   PM / TE / SAD
 │   ├── component_scoping.py  #   component scope
-│   └── account_scoping.py    #   account scope
-├── tests/                    # 15 engine unit tests
+│   ├── account_scoping.py    #   account scope
+│   ├── hashing.py            #   unique transaction ID (hash)
+│   └── sampling.py           #   Target + NSS sampling
+├── tests/                    # 27 engine unit tests
 ├── docs/
 │   ├── DESIGN_DOC.md
 │   ├── DATA_MODEL.md

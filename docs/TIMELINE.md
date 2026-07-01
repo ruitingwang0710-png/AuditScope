@@ -23,12 +23,13 @@ Deliverables:
 - [x] SQLite schema script - `db.py`
 - [x] 15 engine unit tests (`tests/`), end-to-end verified
 
-## Week 3 - Sampling + Unique ID
+## Week 3 - Sampling + Unique ID (done)
 Deliverables:
-- [ ] Transaction hash generator (exact match)
-- [ ] Target sampling
-- [ ] NSS sampling
-- [ ] Sample result table + Streamlit sampling page
+- [x] Transaction hash generator (exact match) - `engines/hashing.py`
+- [x] Target sampling (>= TE / round amount / month-year-end) - `engines/sampling.py`
+- [x] NSS sampling (fixed-size, from remainder, seeded) - `engines/sampling.py`
+- [x] Sample result table + Streamlit sampling page (page 4) - `app.py`
+- [x] 12 more unit tests (hashing + sampling); end-to-end verified
 
 ## Week 4 - Evidence Reuse
 Deliverables:
